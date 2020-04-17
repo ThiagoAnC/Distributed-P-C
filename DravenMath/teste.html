@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <style type="text/css"> 
+            /*Estilizar html é considerado má prática, link um arquivo externo(preferivel), ou use CSS inline como abaixo. */
+            
+            h1{ /* será aplicado em todas as tags H1 encontradas na página */
+                color: black;
+                text-align: center;
+            }
+            body{
+                background-color:rgb(231, 248, 250);
+            }
+            .title-2{ /* será aplicado somente nas tags onde houver o atributo class="title-2" */
+                color:blue;
+                font-size: large;
+                text-align: center;
+                margin-bottom: 3em; 
+                /* 3em aqui significa 3 vezes o tamanho da fonte, coloquei para remover as tag <BR> q vc usou pra formatar*/
+            }
+            #submit-response{ /* será aplicado na tag que possuir a id submit-response, porém aplicar estilo à id não é recomendado */
+                border: 1px solid #ccc;
+            }
+            #submit-response::before{
+                content: "response:\a";
+                white-space: pre;
+            }
+        </style>
+    </head>
+
+<body>
+    <!--
+      -- Aqui estava HEAD, que serve para armazenar metadata da página e não é renderizado 
+      -- já a tag HEADER indica ao navegador o cabeçalho do conteúdo da página
+    -->
+    <header> 
+        <h1>Welcome to DravenMath!</h1>
+    </header>
+
+    <p class="title-2">We are here to help you on your journey!</p>
+
+    <p>Complete the forms bellow to start your search:</p> <!--parágrafo-->
+    
+    <form>
+        <label for="name"> <!-- O uso da tag LABEL é obrigatório junto à tag INPUT por questões de acessibilidade -->
+            Username: 
+        </label> 
+        <input type="text" required id="username" name="Username"><br>
+        <label for="password" >
+            Password:
+        </label>
+        <input type="text" required id="pass" name="pass"><br>
+        <button type="button" onsubmit="showit()">Send</button>
+    </form>
+    
+    <div id="submit-response"></div>
+
+    <script type="text/javascript">
+        function showit() {
+            var form = new FormData(document.getElementsByTagName('form')[0]);
+            responseHTML = document.getElementById('submit-response');
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+               var response = JSON.parse(this.responseText);
+               responseHTML.innerHTML = "username: " + response.username + " pass: " + response.pass
+            }
+            request.open("post", "handle-submit.php", true);
+            request.send(form);
+        }
+    </script>
+
+</body>
+</html>
