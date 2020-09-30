@@ -1,6 +1,7 @@
 import time
 import zmq
 
+ok = "Done!"
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
@@ -27,7 +28,7 @@ while True:
         else:
             socket.send_string("Invalid job role!")
             
-        print ("Done!")
+        print ("ok")
         print("-------------")
 
     
@@ -53,7 +54,7 @@ while True:
 
         else:
             socket.send_string("Invalid format!")
-        print ("Done!")
+        print ("ok")
         print("-------------")
 
 
@@ -86,7 +87,7 @@ while True:
             #print("Reprovado!")
             socket.send_string("You not passed the course!")
 
-        print ("Done!")
+        print ("ok")
         print("-------------")
     
     
@@ -106,7 +107,7 @@ while True:
             socket.send_string("Recommended weight: " + str(round(height*72.7-58,2)))
         else:
             socket.send_string("Invalid format!")
-        print ("Done!")
+        print ("ok")
         print("-------------")
 
 
@@ -134,7 +135,7 @@ while True:
             socket.send_string("Adulto")    #Adulto
         else:
             socket.send_string("Invalid age!")
-        print ("Done!")
+        print ("ok")
         print("-------------")
 
     #The message format is
@@ -173,7 +174,7 @@ while True:
 
         else:
             socket.send_string("Invalid data!")
-        print("Done!")
+        print("ok")
         print("-------------")
 
     #The message format is
@@ -187,7 +188,7 @@ while True:
             socket.send_string("You can retire, rest a little!")
         else:
             socket.send_string("Ah...you are not able to retire yet, go to job!")
-        print("Done!")
+        print("ok")
         print("-------------")
    
     
@@ -208,7 +209,7 @@ while True:
             socket.send_string("There is 40%. of loan to this balance: " + balance)
         elif int(balance) < 0:
             socket.send_string("Invalid data!")
-        print("Done!")
+        print("ok")
         print("-------------")
 
     if "stop" in str(message):

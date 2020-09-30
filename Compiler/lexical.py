@@ -15,8 +15,13 @@ def lexical(f,i):
         if i > 15:
             break
 
+def spliter(token):
+    token,stop = token.split()
+    return int(stop)
+
 #inicio
 f = open("Compiler\entry.txt", "r")
 
-point = lexical(f,0)
-print(point.split())
+token = lexical(f,0)
+stop = spliter(token)
+token = lexical(f,stop)
