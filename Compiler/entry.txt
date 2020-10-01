@@ -1,7 +1,7 @@
-aux <- 3;
-id<-3;
-id <- id + 4;
-id <- id * 5;
-id <- id / 7;
-id <- (id - 5) + 1;
+a<-3;
+b<-3;
+id<-id + 4;
+id<-id * 5;
+id<-id / 7;
+id<-(id - 5) + 1;
 $
