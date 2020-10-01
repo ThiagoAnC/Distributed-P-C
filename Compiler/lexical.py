@@ -1,73 +1,28 @@
 def lexical(f,i):
-    #token = ' '
-    aux = f.read(i)
-    print (aux)
-    while True:
-        if (aux.isalpha()):
-            print (aux)
-            #print ("Token:" + token.strip() + " Tipo: ID")
-            return (token + ' ' + str(i))
-        
-        elif (aux == '"'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: Literal")
-            return (token + ' ' + str(i))
-        
-        elif (aux.isdigit()):
-            print (aux)
-            #print ("Token:" + token + " Tipo: Num")
-            return (token + ' ' + str(i))
-        
-        elif (aux == '{'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: comment")
-            return (token + ' ' + str(i))
-        
-        elif (aux == '<'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: OPR")
-            return (token + ' ' + str(i))
-       
-        elif (aux == '>'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: OPR")
-            return (token + ' ' + str(i))
-        
-        elif (aux == '+' or aux == '-' or aux == '*' or aux == '/'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: OPM")
-            return (token + ' ' + str(i))
-        
-        elif (aux == '('):
-            print (aux)
-            #print ("Token:" + token + " Tipo: AB_P")
-            return (token + ' ' + str(i))
-        
-        elif (aux == ')'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: FC_P")
-            return (token + ' ' + str(i))
-        
-        elif (aux == ';'):
-            print (aux)
-            #print ("Token:" + token + " Tipo: PT_V")
-            return (token + ' ' + str(i))
-        
-        else:
-            i+= 1 
 
-        if aux == '$':
-            break
-        i += 1
+    aux = ''
+    line = f.readline()
+    if line[0].isalpha():
+        while line[i].isalpha():
+            aux = aux + line
+            i += 1
+        return (aux + ' ' + str(i))
 
 def spliter(token):
     token,stop = token.split()
     return int(stop)
 
-#inicio
-f = open("Compiler\entry.txt", "r")
+def tamanho(f):
+    lines = 0
+    for line in f:
+        print(line, end='')
+        lines += 1
+    return lines
 
-token = lexical(f,0)
-stop = spliter(token)
-print (stop)
-token = lexical(f,stop)
+#inicio
+f = open("Compiler\entry.txt")
+try:
+    token = lexical(f,0)
+    spliter(token)
+finally:
+    f.close()
