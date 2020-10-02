@@ -1,3 +1,5 @@
+import sys
+
 def num_token(act):
     digits = '1234567890'
     if act in digits:
@@ -34,13 +36,6 @@ def eof_token(act):
 
 def opr_token(act):
     symbols = '<>='
-    if act in symbols:
-        return True
-    else:
-        return False
-
-def rcb_token(act):
-    symbols = '<-'
     if act in symbols:
         return True
     else:
@@ -87,17 +82,22 @@ def lexical(line_num,line):
             nex = line[itr+1]
         itr += 1
 
-        if (num_token(actual)): #incomplete
+        if (actual == ' '):
+            actual = line[itr+1]
+            nex = line[itr+2]
+
+        elif (num_token(actual)): #incomplete
             token =  ''
             token = token + actual
             aux = ind
             while(num_token(nex)):
                 token = token + nex
-                if (aux == tam-1):
-                    error("Missing ; at the end of the line: " + line_num)
+                if (aux == tam):
+                    sys.exit(error("Missing ; at the end of the line: " + str(line_num)))
+                else:
                     break
-                aux += 1
-            return token
+            print(token + ",NUM")
+            dictionary[token] = "NUM"
 
         elif (lit_token(actual)): #should be tested
             token = ''
@@ -111,9 +111,9 @@ def lexical(line_num,line):
                     aux += 1
                     nex = line[aux+1]
                 if (aux == tam - 1):
-                    error("Literal constant is not closed, in line: " + str(line_num))
-                    return
-            return token
+                    sys.exit(error("Literal constant is not closed, in line: " + str(line_num)))
+            print (token + ',LITERAL')
+            dictionary[token] = "LITERAL,string"
 
         elif (id_token(actual)): #should be tested
             alpha = 'abcdefghijklmnopqrstuvwyxz'
@@ -129,9 +129,9 @@ def lexical(line_num,line):
                         aux += 1
                         nex = line[aux+1]
                     if (aux == tam - 1):
-                        error("Invalid character in line: " + str(line_num))
-                        return
-                return token
+                        sys.exit(error("Invalid character in line: " + str(line_num)))
+                print(token + ',ID')
+                dictionary[token] = "ID,string"
             
         elif (comment_token(actual)):#should be tested
             #recognize but do nothing
@@ -141,39 +141,70 @@ def lexical(line_num,line):
             while(not comment_token(nex)):
                 token = token + nex
                 if (aux == tam-1):
-                    error("Comment hasn't been closed, at line: " + line_num)
+                    sys.exit(error("Comment hasn't been closed, at line: " + str(line_num)))
                     break
                 aux += 1
                 nex = line[aux+1]
             return
                 
         elif (eof_token(actual)):#should be tested
-            return actual
+            print(actual + ',EOF')
             
-        elif (opr_token(actual)):
-            pass
-            
-        elif (rcb_token(actual)):
-            pass
+        elif (opr_token(actual)):#not tested
+            if (actual == '<' and nex == '-'):
+                token = actual + nex
+                print(token + ',RCB')
+                dictionary[token] = "RCB"
+                itr += 1
+            elif actual == '<' and ((nex == '>') or  (nex == '=')):
+                token = actual + nex
+                print(token + ',OPR')
+                dictionary[token] = "OPR"
+            elif (actual == '<' and not opr_token(nex)):
+                print(actual + ',OPR')
+                dictionary[token] = "OPR"
+            elif (actual == '>' and nex == '='):
+                token = actual + nex
+                print(token + ',OPR')
+                dictionary[token] = "OPR"
+            elif (actual == '>' and not opr_token(nex)):
+                print(actual + ',OPR')
+                dictionary[token] = "OPR"
+            elif (actual == '='):
+                print(actual + ',OPR')
+                dictionary[token] = "OPR"
                         
-        elif (opm_token(actual)):
-            pass
+        elif (opm_token(actual)):#not tested
+            if not opm_token(nex):
+                print(actual + ',OPM')
+                dictionary[token] = "OPM"
+            else:
+                sys.exit(error("Mathematical operand not recognized at line: " + str(line_num)))
                         
-        elif (ab_p_token(actual)):
-            pass
+        elif (ab_p_token(actual)):#not tested
+            print(actual + ',AB_P')
+            dictionary[token] = "AB_P"
                         
-        elif (fc_p_token(actual)):
-            pass
+        elif (fc_p_token(actual)):#not tested
+            print(actual + ',FC_P')
+            dictionary[token] = "FC_P"
                         
-        elif (pt_v_token(actual)):
-            pass
-                        
+        elif (pt_v_token(actual)):#not tested
+            nex = line[itr]
+            if nex == '\n':
+                print(actual + ',PT_V')
+                dictionary[token] = "PT_V"
+            else:
+                sys.exit(error("Semicolon placed wrongly at line: " + str(line_num)))
+                return        
         else:
-            error("In")
+            sys.exit(error("Inrecognized token: " + actual + " at line:" + str(line_num)))
+
             
 #inicio
 with open('Compiler\entry.txt') as f:
     global dictionary
+    dictionary = {}
     try:
         line_num = 1
         line = f.readline()
