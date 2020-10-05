@@ -180,10 +180,10 @@ def lexical(line_num,line):
                 nex = line[aux]
             itr = itr +  (aux - itr)
             if notation == 1 or point == 1 or sign == 1:
-                print(token + ",NUM", 'real')
+                print(token + ",NUM", ',real')
                 save(token, 'NUM', ',real')
             else:
-                print(token + ",NUM", 'inteiro')
+                print(token + ",NUM", ',inteiro')
                 save(token, 'NUM', ',inteiro')
 
         elif (lit_token(actual)): #tested
