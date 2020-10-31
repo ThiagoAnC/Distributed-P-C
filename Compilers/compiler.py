@@ -1,4 +1,6 @@
 import sys
+import data
+
 def lexical(line_num,line):
 
     def lex(line_num,line):
@@ -151,6 +153,8 @@ def lexical(line_num,line):
     
             else:
                 error("Inrecognized token: " + actual + " at line:" + str(line_num))
+                queue.append(actual)
+                data.get_error(actual, "Inrecognized token: " + actual + " at line:" + str(line_num))
 
     def indict(token):
         if token in dictionary:
@@ -183,9 +187,25 @@ def lexical(line_num,line):
             entry = lexem
         if (token == 'ID'):
             dictionary[lexem] = token + typ
-            queue.append(entry)
+            queue.append('id')
+        elif token == 'PT_V':
+            queue.append(';')
+        elif token == 'AB_P':
+            queue.append('(')
+        elif token == 'FC_P':
+            queue.append(')')
+        elif 'Literal' in token:
+            queue.append('literal')
+        elif 'OPR' in token:
+            queue.append('opr')
+        elif 'OPM' in token:
+            queue.append('opm')
+        elif 'NUM' in token:
+            queue.append('num')
+        elif 'RCB' in token:
+            queue.append('rcb')
         else:
-            queue.append(entry)
+            queue.append(entry.lower())
 
     def resv_print(token,line_num):
         if token == 'real' or token == 'lit' or token == 'inteiro':
@@ -194,6 +214,7 @@ def lexical(line_num,line):
             if token == 'lit':
                 save(token, '','')
             if token == 'inteiro':
+                token = 'int'
                 save(token, '','')
         elif token == 'inicio':
             if line_num != 1:
@@ -290,8 +311,44 @@ def lexical(line_num,line):
     lex (line_num,line)
 
 def sintax():
-    for row in queue:
-        print (row)
+        
+    def sintatic():
+        queue.append('$')
+        stack = [0]
+        begin = 0
+        a = queue[begin]
+        while True:
+            s = stack[0]
+            if 'S' in data.retrieve(s,a):
+                null = data.retrieve(s,a)
+                t = int(null[1:]) - 1
+                stack.insert(0,t)
+                print ("Add " + str(t) + " on stack")
+                begin += 1
+                a = queue[begin]
+            elif 'R' in data.retrieve(s,a):
+                null = data.retrieve(s,a)
+                t = int(null[1:])
+                A = data.goto(t)
+                for i in range(data.rules(t,0) - 2):
+                    stack.pop(0)
+                s = stack[0]
+                aux = data.retrieve(s,A)
+                if type(aux) == float:
+                    s = int(aux) - 1
+                elif type(aux) == int:
+                    s = aux - 1
+                else:
+                    s = int(aux[1:]) - 1
+                stack.insert(0,s)
+                print ("Reduced the rule: " + data.rules(t,1))
+            elif 'ACC' in data.retrieve(s,a):
+                print ("Reduced the rule: " + data.rules(s,1))
+                break
+            else:
+                data.show_errors(a)
+                begin += 1
+    sintatic()
 
 #inicio    
 global dictionary,queue
@@ -299,7 +356,7 @@ dictionary = {}
 queue = []
 
 #Lexical calling
-with open('Compiler\entry.txt') as f:
+with open('Compilers\entry.txt') as f:
     try:
         line_num = 1
         line = f.readline()
