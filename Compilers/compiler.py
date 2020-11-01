@@ -346,7 +346,7 @@ def sintax():
                 print ("Reduced the rule: " + data.rules(s,1))
                 break
             else:
-                data.show_errors(a)
+                data.show_error(a)
                 begin += 1
     sintatic()
 

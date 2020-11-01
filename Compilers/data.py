@@ -218,7 +218,7 @@ def retrieve(a,s):
             elif table.columns[d] == s:
                 return table[i][a]
     print ("No possible shift or reduce from the state " + str(state) + " with token " + s)
-    return 'ERRO'
+    return 'A'
 
 def goto(a):
     word = rules(a,1)
