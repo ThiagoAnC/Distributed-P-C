@@ -7,11 +7,53 @@ table = pd.read_csv("Compilers\\table.csv")
 table = table.replace(to_replace = np.nan, value = 'NULL')
 columns = list(table)
 
+def handle_error(code,pos):
+    pos = str(int(pos) - 1)
+    if code == 1:
+        get_error(';',"Missing ; at line: " + pos)
+    elif code == 2:
+        get_error('fimse','Found a fimse token without a se matching token at line: ' + pos)
+    elif code == 3:
+        pos = str(int(pos) - 1)
+        get_error(')','Missing matching ) at line: ' + pos)
+    elif code == 4:
+        get_error('fim','Missing fim token at the end of the file')
+    elif code == 5:
+        #error just to continue when there are missing marking tokens
+        pass
+    elif code == 6:
+        get_error('inicio','Missing inicio token at the beginning of the file')
+    elif code == 7:
+        get_error('varinicio','Missing varinicio token just after the inicio token at line: ' + pos)
+    elif code == 8:
+        get_error('TIPO','Missing type declaration after an id at line: ' + pos)
+    elif code == 9:
+        get_error('varfim','Missing varfim token at line: ' + pos)
+    elif code == 10:
+        get_error('fim','Reached the end of file without parsing it correctly at line: ' + pos)
+
 def get_error(token,err):
     aux[token] = err
 
 def show_error(token):
-    print (aux[token])
+        if aux[token]:
+            err = aux[token]
+
+            if 'Inrecognized' in err:
+                print (err)
+                return 1
+        else:
+            return 0
+
+def show_all():
+    show = str(aux.values())
+    print (show[14:-3])
+
+def belong(a):
+    if nonterm(a) or term(a):
+        return 1
+    else:
+        return 0
 
 def nonterm(col):
     nonterminal = ['inicio','varinicio','varfim','int','real','lit','leia','escreva','literal','num','id','rcb','opm','se','entao','(',')','opr','fimse',';','fim','$']

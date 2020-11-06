@@ -18,7 +18,6 @@ def lexical(line_num,line):
 
             if (actual == ' '):
                 actual = line[itr+1]
-                nex = line[itr+2]
 
             elif (num_token(actual)): #complete
                 token =  ''
@@ -47,13 +46,17 @@ def lexical(line_num,line):
                             sign = 1
                     if (aux == tam):
                         error("Missing ; at the end of the line: " + str(line_num))
-                    aux += 1
-                    nex = line[aux]
-                itr = itr +  (aux - itr)
+                    if line[aux] != '\n':
+                        aux += 1
+                        nex = line[aux]
+                        itr = itr +  (aux - itr)
+                    else:
+                        aux += 1
+                        itr = itr +  (aux - itr)
                 if notation == 1 or point == 1 or sign == 1:
-                    save(token, 'NUM', 'real')
+                    save(token, 'NUM', 'real', (line_num))
                 else:
-                    save(token, 'NUM', 'inteiro')
+                    save(token, 'NUM', 'inteiro', (line_num))
 
             elif (lit_token(actual)): #tested
                 token = ''
@@ -71,7 +74,7 @@ def lexical(line_num,line):
                         aux += 1
                         nex = line[aux]
                     itr = itr + (aux - itr + 1)
-                save(token,'Literal', 'string')
+                save(token,'Literal', 'string',(line_num))
 
             elif (isalpha(actual)): #tested
                 token = ''
@@ -93,12 +96,12 @@ def lexical(line_num,line):
                     if eof_token(token):
                         if line[-1] == '\n' or nex == None:
                             error("EOF not at the end of the file, at line: " + str(line_num))
-                        save(token,'','')
+                        save(token,'','',(line_num))
                 if not resv_words(token):
                     if not eof_token(token):
-                        save(token,'ID','')
+                        save(token,'ID','',(line_num))
                     else:
-                        save(token, '','')
+                        save(token, '','',(line_num))
                 else:
                     resv_print(token,line_num)
             
@@ -119,41 +122,41 @@ def lexical(line_num,line):
             elif (opr_token(actual)):#tested
                 if (actual == '<' and nex == '-'):
                     token = actual + nex
-                    save(token,'RCB','')
+                    save(token,'RCB','',(line_num))
                     itr += 1
                 elif (actual == '<' and ((nex == '>') or  (nex == '='))) or (actual == '>' and nex == '='):
                     token = actual + nex
-                    save(token, 'OPR','')
+                    save(token, 'OPR','',(line_num))
                     itr += 1
                 elif (actual == '<' and not opr_token(nex)):
-                    save(token, 'OPR','')
+                    save(token, 'OPR','',(line_num))
                 elif (actual == '>' and not opr_token(nex)):
-                    save(actual, 'OPR','')
+                    save(actual, 'OPR','',(line_num))
                 elif (actual == '='):
-                    save(actual, 'OPR','')
+                    save(actual, 'OPR','',(line_num))
                             
             elif (opm_token(actual)):#tested
                 if not opm_token(nex):
-                    save(actual, 'OPM','')
+                    save(actual, 'OPM','',(line_num))
                 else:
                     error("Mathematical operand not recognized at line: " + str(line_num))
                             
             elif (ab_p_token(actual)):#tested
-                save(actual, 'AB_P','')
+                save(actual, 'AB_P','',(line_num))
                             
             elif (fc_p_token(actual)):#tested
-                save(actual, 'FC_P','')
+                save(actual, 'FC_P','',(line_num))
                             
             elif (pt_v_token(actual)):#tested
                 nex = line[itr]
                 if nex == '\n':
-                    save(actual, 'PT_V','')
+                    save(actual, 'PT_V','',(line_num))
                 else:
                     error("Semicolon placed wrongly at line: " + str(line_num))
     
             else:
                 error("Inrecognized token: " + actual + " at line:" + str(line_num))
-                queue.append(actual)
+                queue.append(actual + ',' + str(line_num))
                 data.get_error(actual, "Inrecognized token: " + actual + " at line:" + str(line_num))
 
     def indict(token):
@@ -180,50 +183,50 @@ def lexical(line_num,line):
         else: 
             return False
 
-    def save(lexem, token, typ):
+    def save(lexem, token, typ,pos):
         if token or typ:
             entry = (lexem + ',' + token + ',' + typ)
         else:
             entry = lexem
         if (token == 'ID'):
             dictionary[lexem] = token + typ
-            queue.append('id')
+            queue.append('id' + ',' + str(line_num))
         elif token == 'PT_V':
-            queue.append(';')
+            queue.append(';' + ',' + str(line_num))
         elif token == 'AB_P':
-            queue.append('(')
+            queue.append('(' + ',' + str(line_num))
         elif token == 'FC_P':
-            queue.append(')')
+            queue.append(')' + ',' + str(line_num))
         elif 'Literal' in token:
-            queue.append('literal')
+            queue.append('literal' + ',' + str(line_num))
         elif 'OPR' in token:
-            queue.append('opr')
+            queue.append('opr' + ',' + str(line_num))
         elif 'OPM' in token:
-            queue.append('opm')
+            queue.append('opm' + ',' + str(line_num))
         elif 'NUM' in token:
-            queue.append('num')
+            queue.append('num' + ',' + str(line_num))
         elif 'RCB' in token:
-            queue.append('rcb')
+            queue.append('rcb' + ',' + str(line_num))
         else:
-            queue.append(entry.lower())
+            queue.append(entry.lower() + ',' + str(line_num))
 
     def resv_print(token,line_num):
         if token == 'real' or token == 'lit' or token == 'inteiro':
             if token == 'real':
-                save(token, '','')
+                save(token, '','',(line_num))
             if token == 'lit':
-                save(token, '','')
+                save(token, '','',(line_num))
             if token == 'inteiro':
                 token = 'int'
-                save(token, '','')
+                save(token, '','',(line_num))
         elif token == 'inicio':
             if line_num != 1:
                 print("Reserved word to mark the beginning is not at the beginning, at line: " + str(line_num))
-            save(token, '','')
+            save(token, '','',(line_num))
         elif token == 'fim':
             eof_token(token)
         else:
-            save(token, '','')
+            save(token, '','',(line_num))
 
     def resv_words(token):
         dictionary['resv'] = {('fim'),('inteiro'), ('lit'), ('real'), ('inicio'), ('varinicio'), ('varfim'), ('escreva'), ('leia'), ('se'), ('entao'), ('fimse')}
@@ -313,10 +316,10 @@ def lexical(line_num,line):
 def sintax():
         
     def sintatic():
-        queue.append('$')
+        queue.append('$' + ',' + str(0))
         stack = [0]
         begin = 0
-        a = queue[begin]
+        a,pos = queue[begin].split(',')
         while True:
             s = stack[0]
             if 'S' in data.retrieve(s,a):
@@ -325,7 +328,7 @@ def sintax():
                 stack.insert(0,t)
                 print ("Add " + str(t) + " on stack")
                 begin += 1
-                a = queue[begin]
+                a,pos = queue[begin].split(',')
             elif 'R' in data.retrieve(s,a):
                 null = data.retrieve(s,a)
                 t = int(null[1:])
@@ -345,10 +348,45 @@ def sintax():
             elif 'ACC' in data.retrieve(s,a):
                 print ("Reduced the rule: " + data.rules(s,1))
                 break
-            else:
-                data.show_error(a)
+            elif 'E' in data.retrieve(s,a):
+                null = data.retrieve(s,a)
+                t = int(null[1:])
+                data.handle_error(t,pos)
                 begin += 1
+                if t == 4:
+                    begin -= 2
+                    queue.insert(-1,'fim,' + pos)
+                    a,pos = queue[begin].split(',')
+                elif t == 6:
+                    begin -= 1
+                    queue.insert(0,'inicio,' + pos)
+                    a,pos = queue[begin].split(',')
+                elif t == 7:
+                    begin -= 1
+                    queue.insert(1,'varinicio,'+ pos)
+                    a,pos = queue[begin].split(',')
+                elif t == 8:
+                    stack.insert(0,56)
+                elif t == 9:
+                    begin -= 3
+                    a,pos = queue[begin].split(',')
+                elif t == 10:
+                    stack.insert(0,1)
+                    a,pos = queue[begin].split(',')
+                else:    
+                    a,pos = queue[begin].split(',')
+            else:
+                code = data.show_error(a)
+                if code == 1:
+                    begin += 1
+                    a,pos = queue[begin].split(',')
+                elif code == 0:
+                    #just to test
+                    pass
+    
     sintatic()
+    print ("Errors found: ")
+    data.show_all()
 
 #inicio    
 global dictionary,queue
