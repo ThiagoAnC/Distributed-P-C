@@ -373,6 +373,9 @@ def sintax():
                 elif t == 10:
                     stack.insert(0,1)
                     a,pos = queue[begin].split(',')
+                elif t == 11:
+                    begin += 1
+                    a,pos = queue[begin].split(',')
                 else:    
                     a,pos = queue[begin].split(',')
             else:

@@ -51,4 +51,7 @@ def decode(img_loc,password):
         else:
           return message
 
-encode('lena.png','Hello_world','There is a catcher in the rye')
+img = encode('lena.png','Hello World','There is a catcher in the rye')
+cv2.imwrite('modified.png', img)
+message = decode('modified.png','There is a catcher in the rye')
+print (message)

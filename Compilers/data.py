@@ -31,6 +31,8 @@ def handle_error(code,pos):
         get_error('varfim','Missing varfim token at line: ' + pos)
     elif code == 10:
         get_error('fim','Reached the end of file without parsing it correctly at line: ' + pos)
+    elif code == 11:
+        get_error(';','Extra semicolon found at line: ' + pos)
 
 def get_error(token,err):
     aux[token] = err
