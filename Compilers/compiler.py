@@ -188,9 +188,10 @@ def lexical(line_num,line):
             entry = (lexem + ',' + token + ',' + typ)
         else:
             entry = lexem
+        dictionary[lexem] = entry
         if (token == 'ID'):
-            dictionary[lexem] = token + typ
             queue.append('id' + ',' + str(line_num))
+            order.append(lexem)    
         elif token == 'PT_V':
             queue.append(';' + ',' + str(line_num))
         elif token == 'AB_P':
@@ -201,8 +202,10 @@ def lexical(line_num,line):
             queue.append('literal' + ',' + str(line_num))
         elif 'OPR' in token:
             queue.append('opr' + ',' + str(line_num))
+            var.append(lexem)
         elif 'OPM' in token:
             queue.append('opm' + ',' + str(line_num))
+            var.append(lexem)
         elif 'NUM' in token:
             queue.append('num' + ',' + str(line_num))
         elif 'RCB' in token:
@@ -313,8 +316,31 @@ def lexical(line_num,line):
 
     lex (line_num,line)
 
+def initialize():
+    f = open('Compilers\output.txt','w')
+    f.write("#include <stdio.h>\n")
+    f.write("typedef char literal[256]\n")
+    f.write("void main() {\n")
+    return f
+
 def sintax():
-        
+    
+    f = initialize()
+
+    def semantic(id,token):
+        if token == 'id':
+            token = order.pop(0)
+        elif token == 'opm' or token == 'opr':
+            token = var.pop(0)
+        if token != '$':
+            print (dictionary[token])
+        if id == 5:
+            f.write("\n")
+            f.write("\n")
+            f.write("\n")
+        elif id == 6:
+            print (dictionary[token])
+
     def sintatic():
         queue.append('$' + ',' + str(0))
         stack = [0]
@@ -326,7 +352,6 @@ def sintax():
                 null = data.retrieve(s,a)
                 t = int(null[1:]) - 1
                 stack.insert(0,t)
-                print ("Add " + str(t) + " on stack")
                 begin += 1
                 a,pos = queue[begin].split(',')
             elif 'R' in data.retrieve(s,a):
@@ -344,9 +369,8 @@ def sintax():
                 else:
                     s = int(aux[1:]) - 1
                 stack.insert(0,s)
-                print ("Reduced the rule: " + data.rules(t,1))
+                semantic(s,a)
             elif 'ACC' in data.retrieve(s,a):
-                print ("Reduced the rule: " + data.rules(s,1))
                 break
             elif 'E' in data.retrieve(s,a):
                 null = data.retrieve(s,a)
@@ -392,8 +416,10 @@ def sintax():
     data.show_all()
 
 #inicio    
-global dictionary,queue
+global dictionary,queue,order,var
 dictionary = {}
+order = []
+var = []
 queue = []
 
 #Lexical calling
