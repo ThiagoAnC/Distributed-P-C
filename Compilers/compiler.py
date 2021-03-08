@@ -188,9 +188,9 @@ def lexical(line_num,line):
             entry = (lexem + ',' + token + ',' + typ)
         else:
             entry = lexem
-        dictionary[lexem] = entry
         if (token == 'ID'):
             queue.append('id' + ',' + str(line_num))
+            dictionary[lexem] = entry
             order.append(lexem)    
         elif token == 'PT_V':
             queue.append(';' + ',' + str(line_num))
@@ -200,14 +200,17 @@ def lexical(line_num,line):
             queue.append(')' + ',' + str(line_num))
         elif 'Literal' in token:
             queue.append('literal' + ',' + str(line_num))
+            dictionary[lexem] = entry
+            lits.append(lexem)
         elif 'OPR' in token:
             queue.append('opr' + ',' + str(line_num))
-            var.append(lexem)
+            oprs.append(lexem)
         elif 'OPM' in token:
             queue.append('opm' + ',' + str(line_num))
-            var.append(lexem)
+            oprs.append(lexem)
         elif 'NUM' in token:
             queue.append('num' + ',' + str(line_num))
+            nums.append(lexem)
         elif 'RCB' in token:
             queue.append('rcb' + ',' + str(line_num))
         else:
@@ -316,31 +319,164 @@ def lexical(line_num,line):
 
     lex (line_num,line)
 
-def initialize():
-    f = open('Compilers\output.txt','w')
-    f.write("#include <stdio.h>\n")
-    f.write("typedef char literal[256]\n")
-    f.write("void main() {\n")
-    return f
-
 def sintax():
+
+    f = open('Compilers\output.c','w')
+    if f != None:
+        f.write("#include <stdio.h>\n")
+        f.write("typedef char literal[256];\n")
+        f.write("void main() {\n")
+        f.write("int T0;\n")
+        f.write("int T1;\n")
+        f.write("int T2;\n")
+        f.write("int T3;\n")
+        f.write("int T4;\n")
     
-    f = initialize()
+    temp = []
+    semcstk = []
+    semcstk.append('0')
 
-    def semantic(id,token):
-        if token == 'id':
-            token = order.pop(0)
-        elif token == 'opm' or token == 'opr':
-            token = var.pop(0)
-        if token != '$':
-            print (dictionary[token])
-        if id == 5:
-            f.write("\n")
-            f.write("\n")
-            f.write("\n")
-        elif id == 6:
-            print (dictionary[token])
+    def typeVerif(var,num):
+        if dictionary.get(var):
+            aux = str(dictionary[var])
+            idn,aux,typ = aux.split(',')
+            if '.' in str(num):
+                if typ == 'double':
+                    return 1
+                else:
+                    return 0
+            elif typ == 'int':
+                    return 1
+            else:
+                return 0
+        else:
+            return 0
 
+    def treat(token):
+        if token == 'literal':
+            return 'lit'
+        else:
+            return token
+
+    def semstack(token,begin):
+        if token != 'inicio' and token != 'varinicio' and token != 'varfim' and token != 'varinicio' and token != 'fim' and token != ';' and token != 'fimse':
+            semcstk.insert(begin,token)
+
+    def semantic(case):
+        if case == 5:
+            f.write("\n")
+            f.write("\n")
+            f.write("\n")
+        elif case == 6:
+            if semcstk[1] == 'id':
+                semcstk.pop(1)
+                idn = order.pop(0)
+            if semcstk[1] == 'lit' or semcstk[1] == 'real' or semcstk[1] == 'int':
+                typ = semcstk.pop(1)
+                if typ == 'lit':
+                    typ = 'literal'
+                elif typ == 'real':
+                    typ = 'double'
+            if idn and typ:
+                dictionary[idn] = idn + ',ID,' + typ
+                f.write(typ + ' ' + idn + ';\n')
+        elif case ==  7:
+            typ1 = 'inteiro'
+        elif case ==  8:
+            typ1 = 'real'
+        elif case ==  9:
+            typ1 = 'literal'
+        elif case ==  11:
+            if semcstk.pop(1) == 'leia':
+                if semcstk.pop(1) == 'id':
+                    arg = order.pop(0)
+            if arg:
+                aux = dictionary[arg]
+                if 'literal' in aux:
+                    f.write('scanf("%s",' + arg + ');\n')
+                elif 'int' in aux:
+                    f.write('scanf("%d",&' + arg + ');\n')
+                elif 'double' in aux:
+                    f.write('scanf("%lf",&' + arg + ');\n')
+                else:
+                    print("Undeclared variable!")
+        elif case ==  12:
+            if len(semcstk) > 1:
+                aux = semcstk.pop(1)
+                if aux == 'escreva':
+                    aux = semcstk.pop(1)
+                    if aux == 'literal':
+                        arg = lits.pop(0)
+                        f.write('printf(' + arg + ');\n')
+                    elif aux == 'id':
+                        arg = order.pop(0)
+                        if dictionary.get(arg):
+                            aux = str(dictionary[arg])
+                            arg,token,typ = aux.split(',')
+                            if typ == 'double':
+                                f.write('printf("%lf",' + arg + ');\n')
+                            elif typ == 'int':
+                                f.write('printf("%d",' + arg + ');\n')
+                            elif typ == 'literal':
+                                f.write('printf("%s",' + arg + ');\n') 
+        elif case ==  17:
+            semcstk.pop(1)
+            semcstk.pop(1)
+            idn = order.pop(0)
+            if idn in dictionary.keys() and idn == 'B':
+                if typeVerif(idn,9):
+                    f.write(idn + ' = ' + 'T' + str(len(temp)-1) + ';\n')
+                else:
+                    print("Incompatible type in assignment.")
+            elif idn in dictionary.keys() and idn == 'D':
+
+                f.write(idn + ' = ' + order.pop(0) + ';\n')
+            elif idn in dictionary.keys() and idn == 'C':
+                f.write(idn + ' = ' + nums.pop(0) + ';\n')
+            else:
+                print("Undeclared variable.")               
+        elif case ==  18:
+            counter = len(temp) 
+            if semcstk.pop(3) == 'id':
+                idn = order.pop(0)
+                semcstk.pop(3)
+                if semcstk.pop(3) == 'num' and len(semcstk) > 1:
+                    opm = oprs.pop(0)
+                    num = nums.pop(0)
+                    if typeVerif(idn,num):
+                        temp.append('T' + str(counter) + ' = ' + idn + ' ' + opm + ' ' + num + ';')
+                        f.write(temp[counter] + '\n')
+                    else:
+                        print("Incompatible type in assignment.")
+        elif case ==  23:
+            f.write('}\n')
+        elif case ==  24:
+            aux = semcstk.pop(1)
+            if aux == 'se':
+                semcstk.pop(1)
+                semcstk.pop(1)
+                semcstk.pop(1)
+                counter = len(temp) - 1
+                f.write('if(T' + str(counter) + ') {\n')
+        elif case ==  25:
+            counter = 1
+            idn = semcstk.pop(counter)
+            while idn != 'id':
+                semcstk.insert(counter,idn)
+                counter += 1
+                idn = semcstk.pop(counter)
+            if idn == 'id':
+                idn = order.pop(0)
+            semcstk.pop(counter)
+            opr = oprs.pop(0)
+            semcstk.pop(counter)
+            num = nums.pop(0)
+            temp.append(idn + opr + num)
+            counter = len(temp) - 1
+            f.write ('T' + str(counter) + '=' + temp[counter] + ';\n')
+        else:
+            return
+    
     def sintatic():
         queue.append('$' + ',' + str(0))
         stack = [0]
@@ -352,6 +488,7 @@ def sintax():
                 null = data.retrieve(s,a)
                 t = int(null[1:]) - 1
                 stack.insert(0,t)
+                semstack(a,begin)
                 begin += 1
                 a,pos = queue[begin].split(',')
             elif 'R' in data.retrieve(s,a):
@@ -369,8 +506,11 @@ def sintax():
                 else:
                     s = int(aux[1:]) - 1
                 stack.insert(0,s)
-                semantic(s,a)
+                semantic(t)
             elif 'ACC' in data.retrieve(s,a):
+                semantic(12)
+                semantic(12)
+                semantic(23)
                 break
             elif 'E' in data.retrieve(s,a):
                 null = data.retrieve(s,a)
@@ -407,20 +547,19 @@ def sintax():
                 if code == 1:
                     begin += 1
                     a,pos = queue[begin].split(',')
-                elif code == 0:
-                    #just to test
-                    pass
-    
+
     sintatic()
     print ("Errors found: ")
     data.show_all()
 
 #inicio    
-global dictionary,queue,order,var
+global dictionary,queue,order,lits,oprs,nums
 dictionary = {}
 order = []
-var = []
 queue = []
+lits = []
+oprs = []
+nums = []
 
 #Lexical calling
 with open('Compilers\entry.txt') as f:
